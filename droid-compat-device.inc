@@ -163,7 +163,7 @@ done
 
 %install
 
-PKGS="droid-config droid-config-sailfish droid-hal droid-config-flashing droid-system"
+PKGS="feature droid-config droid-config-sailfish droid-hal droid-config-flashing droid-system"
 
 # Copy everything into the installroot
 for pkg in $PKGS; do
