@@ -130,7 +130,7 @@ sed \
 # Generate file lists
 for pkg in $PKGS; do
 	if [ -e %{_build_dir}/$pkg ]; then
-		find %{_build_dir}/$pkg ! \( -type d \) | sed -e s/"%{_build_dir}\/$pkg"/"\/"/g> %{_build_dir}/$pkg.files
+		find %{_build_dir}/$pkg ! \( -type d \) | sed -e s/"%{_build_dir}\/$pkg"//g> %{_build_dir}/$pkg.files
 	fi
 done
 
