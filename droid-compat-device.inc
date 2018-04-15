@@ -175,6 +175,9 @@ done
 mkdir -p %{buildroot}/usr/share/package-groups/
 cp -av %{_build_dir}/patterns-built/* %{buildroot}/usr/share/package-groups/
 
+%files feature -f %{_build_dir}/feature.files
+%defattr(-,root,root,-)
+
 %files patterns
 /usr/share/package-groups
 
