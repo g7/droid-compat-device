@@ -29,6 +29,7 @@ License:       BSD-3-Clause
 Version:       0.0.1
 Release:       1
 Provides:      droid-compat
+Source:        %{name}-%{version}.tar.bz2
 BuildRequires: repomd-pattern-builder
 
 %description
@@ -101,6 +102,9 @@ Provides: droid-compat-droid-system
 %{summary}.
 
 ########################################################################
+
+%prep
+%setup -q -n %{name}-%{version}
 
 %build
 
