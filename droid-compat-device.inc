@@ -165,13 +165,10 @@ done
 
 PKGS="droid-config droid-config-sailfish droid-hal droid-config-flashing droid-system"
 
-rm -rf installroot
-mkdir installroot
-
 # Copy everything into the installroot
 for pkg in $PKGS; do
 	if [ -e %{_build_dir}/$pkg ]; then
-		cp -Rav %{_build_dir}/$pkg/* installroot
+		cp -Rav %{_build_dir}/$pkg/* %{buildroot}
 	fi
 done
 
