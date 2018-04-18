@@ -140,7 +140,7 @@ sed \
 for pkg in $PKGS; do
 	if [ -e %{_build_dir}/$pkg/%{divert_base_path} ]; then
 		find %{_build_dir}/$pkg/%{divert_base_path} -type f \
-			| sed "s/%{_build_dir}\/$pkg\/%{divert_base_path}//g" \
+			| sed "s|%{_build_dir}/$pkg/%{divert_base_path}||g" \
 			> %{_build_dir}/$pkg/%{divert_base_path}/${pkg}.manifest
 	fi
 done
