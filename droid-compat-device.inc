@@ -39,7 +39,6 @@ Release:       1
 Provides:      droid-compat
 Source:        %{name}-%{version}.tar.bz2
 BuildRequires: repomd-pattern-builder
-Requires:      rpm-divert
 
 %description
 %{summary}.
@@ -91,6 +90,7 @@ Provides: droid-compat-droid-hal
 %package droid-config-flashing
 Summary: Compatibility layer for %{rpm_device} (droid-config-flashing)
 Requires: droid-config-%{rpm_adaptation_device}-flashing
+Requires: rpm-divert
 Requires: yabit
 %if 0%{?dtb_package:1}
 Requires: %{dtb_package}
@@ -104,6 +104,7 @@ Provides: droid-compat-droid-config-flashing
 %package droid-system
 Summary: Compatibility layer for %{rpm_device} (droid-system)
 Requires: droid-system-%{rpm_adaptation_device}
+Requires: rpm-divert
 Provides: droid-compat-droid-system
 
 %description droid-system
