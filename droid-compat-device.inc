@@ -19,6 +19,14 @@
 %define divert_flash_partition_device_info 0
 %endif
 
+%if 0%{!?divert_system:1}
+%define divert_system 0
+%endif
+
+%if 0%{!?divert_base_path:1}
+%define divert_base_path "/usr/lib/droid-compat"
+%endif
+
 %define _build_dir tmp
 %define _common_dir %{_build_dir}/droid-compat-device
 
@@ -127,6 +135,16 @@ sed \
 	's|@CMDLINE@|%{custom_cmdline}|; s|@DTB_PATH@|%{custom_dtb}|' \
 	%{_build_dir}/droid-config-flashing/usr/lib/droid-compat/platform-updates/flash-bootimg.sh
 
+# Build diversion manifests
+
+for pkg in $PKGS; do
+	if [ -e %{_build_dir}/$pkg/%{divert_base_path} ]; then
+		find %{_build_dir}/$pkg/%{divert_base_path} -type f \
+			| sed "s/%{_build_dir}\/$pkg\/%{divert_base_path}//g" \
+			> %{_build_dir}/$pkg/%{divert_base_path}/${pkg}.manifest
+	fi
+done
+
 # Generate file lists
 for pkg in $PKGS; do
 	if [ -e %{_build_dir}/$pkg ]; then
@@ -223,6 +241,20 @@ rpm-divert add \
 
 rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing
 
+%post droid-system
+%if 0%{?divert_system:1}
+for diversion in $(cat %{divert_base_path}/droid-system.manifest); do
+	rpm-divert add \
+		droid-compat-%{rpm_device}-droid-system \
+		${diversion} \
+		${diversion}.diverted \
+		--action symlink \
+		--replacement %{divert_base_path}/${diversion}
+done
+
+rpm-divert apply --package droid-compat-%{rpm_device}-droid-system
+%endif
+
 %preun droid-config-flashing
 if [ $1 -eq 0 ]; then
 	# As on RPM-based systems the installation scriptlets of the upgrade
@@ -247,6 +279,24 @@ if [ $1 -eq 0 ]; then
 
 fi
 
+%preun droid-system
+%if 0%{?divert_system:1}
+if [ $1 -eq 0 ]; then
+	# As on RPM-based systems the installation scriptlets of the upgrade
+	# are executed _before_ removing the old version (thus executing this
+	# postun scriplet at the end of the transaction), we are going to
+	# unapply the diversions only on package removals.
+	rpm-divert unapply --package droid-compat-%{rpm_device}-droid-system
+
+	for diversion in $(cat %{divert_base_path}/droid-system.manifest); do
+		rpm-divert remove \
+			droid-compat-%{rpm_device}-droid-system \
+			${diversion}
+	done
+
+fi
+%endif
+
 %triggerin droid-config-flashing -- droid-config-%{rpm_adaptation_device}-flashing
 if [ $2 -gt 1 ]; then
 	# On upgrades, unapply the triggers so that when rpm will put the
@@ -254,9 +304,23 @@ if [ $2 -gt 1 ]; then
 	rpm-divert unapply --package droid-compat-%{rpm_device}-droid-config-flashing
 fi
 
+%triggerin droid-system -- droid-system-%{rpm_adaptation_device}
+if [ $2 -gt 1 ]; then
+	# On upgrades, unapply the triggers so that when rpm will put the
+	# upgraded files back in will not overwrite the diversion symlinks
+	rpm-divert unapply --package droid-compat-%{rpm_device}-droid-system
+fi
+
 %triggerun droid-config-flashing -- droid-config-%{rpm_adaptation_device}-flashing
 if [ $1 -gt 0 ] && [ $2 -gt 0 ]; then
 	# Now that the upgrade files are in their place, it is time to re-apply
 	# the diversions 
 	rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing
+fi
+
+%triggerun droid-system -- droid-system-%{rpm_adaptation_device}
+if [ $1 -gt 0 ] && [ $2 -gt 0 ]; then
+	# Now that the upgrade files are in their place, it is time to re-apply
+	# the diversions
+	rpm-divert apply --package droid-compat-%{rpm_device}-droid-system
 fi
