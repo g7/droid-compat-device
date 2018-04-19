@@ -221,7 +221,7 @@ cp -av %{_build_dir}/patterns-built/* %{buildroot}/usr/share/package-groups/
 rpm-divert add \
 	droid-compat-%{rpm_device}-droid-config-flashing \
 	/var/lib/platform-updates/flash-bootimg.sh \
-	/var/lib/platform-updates/flash-bootimg.sh.diverted \
+	/var/lib/diversions/platform-updates/flash-bootimg.sh.diverted \
 	--action symlink \
 	--replacement /usr/lib/droid-compat/platform-updates/flash-bootimg.sh
 %endif
@@ -231,12 +231,12 @@ rpm-divert add \
 rpm-divert add \
 	droid-compat-%{rpm_device}-droid-config-flashing \
 	/var/lib/flash-partition/device-info \
-	/var/lib/flash-partition/device-info.diverted \
+	/var/lib/diversions/flash-partition/device-info.diverted \
 	--action symlink \
 	--replacement %{custom_flash_partition_device_info_path}
 %endif
 
-rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing
+rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing --create-directory
 
 %post droid-system
 %if 0%{?divert_system:1}
@@ -244,12 +244,12 @@ for diversion in $(cat %{divert_base_path}/droid-system.manifest); do
 	rpm-divert add \
 		droid-compat-%{rpm_device}-droid-system \
 		${diversion} \
-		${diversion}.diverted \
+		/var/lib/diversions/${diversion}.diverted \
 		--action symlink \
 		--replacement %{divert_base_path}/${diversion}
 done
 
-rpm-divert apply --package droid-compat-%{rpm_device}-droid-system
+rpm-divert apply --package droid-compat-%{rpm_device}-droid-system --create-directory
 %endif
 
 %preun droid-config-flashing
@@ -312,12 +312,12 @@ fi
 if [ $1 -gt 0 ] && [ $2 -gt 0 ]; then
 	# Now that the upgrade files are in their place, it is time to re-apply
 	# the diversions 
-	rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing
+	rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing --create-directory
 fi
 
 %triggerun droid-system -- droid-system-%{rpm_adaptation_device}
 if [ $1 -gt 0 ] && [ $2 -gt 0 ]; then
 	# Now that the upgrade files are in their place, it is time to re-apply
 	# the diversions
-	rpm-divert apply --package droid-compat-%{rpm_device}-droid-system
+	rpm-divert apply --package droid-compat-%{rpm_device}-droid-system --create-directory
 fi
