@@ -24,7 +24,7 @@
 %endif
 
 %if 0%{!?divert_base_path:1}
-%define divert_base_path "/usr/lib/droid-compat"
+%define divert_base_path /usr/lib/droid-compat
 %endif
 
 %define _build_dir tmp
