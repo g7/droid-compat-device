@@ -215,10 +215,6 @@ cp -av %{_build_dir}/patterns-built/* %{buildroot}/usr/share/package-groups/
 %files droid-system -f %{_build_dir}/droid-system.files
 %defattr(-,root,root,-)
 
-%post droid-config-sailfish
-# FIXME!
-add-oneshot compat-fix-icons
-
 %post droid-config-flashing
 %if 0%{?patch_kernel:1}
 # Divert flash-bootimg.sh
