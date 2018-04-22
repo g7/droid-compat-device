@@ -23,6 +23,10 @@
 %define divert_system 0
 %endif
 
+%if 0%{!?divert_system_override_copy:1}
+%define divert_system_override_copy ""
+%endif
+
 %if 0%{!?divert_base_path:1}
 %define divert_base_path /usr/lib/droid-compat
 %endif
@@ -241,11 +245,16 @@ rpm-divert apply --package droid-compat-%{rpm_device}-droid-config-flashing --cr
 %post droid-system
 %if 0%{?divert_system:1}
 for diversion in $(cat %{divert_base_path}/droid-system.manifest); do
+	action="symlink"
+	# This is pretty lousy...
+	if $(echo %{divert_system_override_copy} | grep -q ${diversion}); then
+		action="copy"
+	fi
 	rpm-divert add \
 		droid-compat-%{rpm_device}-droid-system \
 		${diversion} \
 		/var/lib/diversions/${diversion}.diverted \
-		--action symlink \
+		--action ${action} \
 		--replacement %{divert_base_path}/${diversion}
 done
 
